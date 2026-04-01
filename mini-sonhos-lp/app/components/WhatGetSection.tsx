@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 export default function WhatGetSection() {
     return(
-         <section className="py-24 px-6 bg-pink-50">
+         <section className="py-24 px-6 bg-gradient-to-t from-white to-pink-50">
                 <div className="max-w-4xl mx-auto text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}

@@ -1,6 +1,6 @@
 "use client";
 import { motion } from 'framer-motion';
-import { MessageCircle } from 'lucide-react';
+import { FaWhatsapp } from "react-icons/fa";
 const WHATSAPP_LINK = "https://wa.me/qr/326K3JISIY4AF1";
 
 export default function CiaSection() {
@@ -23,7 +23,7 @@ export default function CiaSection() {
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <a
-                                href="/Order"
+                                href="/order"
                                 className="inline-block bg-white text-purple-600 px-8 py-4 rounded-full font-semibold hover:bg-pink-50 transition-colors shadow-lg"
                             >
                                 Fazer meu pedido surpresa
@@ -34,7 +34,7 @@ export default function CiaSection() {
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center justify-center gap-2 bg-green-500 text-white px-8 py-4 rounded-full font-semibold hover:bg-green-600 transition-colors shadow-lg"
                             >
-                                <MessageCircle className="w-5 h-5" />
+                                <FaWhatsapp className="w-5 h-5" />
                                 Precisa de ajuda?
                             </a>
                         </div>

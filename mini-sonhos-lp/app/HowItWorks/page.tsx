@@ -36,7 +36,7 @@ const steps = [
   },
 ];
 
-export default function HowItWorks() {
+export default function page() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-pink-100">
       <WhatsAppButton />

@@ -1,7 +1,7 @@
 
-import Home from "./pages/Home";
+import Home from "./home/page";
 import FairyDustCursor from "./components/fairydust/fairydust";
-import HowItWorks from "./pages/HowItWorks";
+import HowItWorks from "./HowItWorks/page";
 
 export default function page() {
   return (

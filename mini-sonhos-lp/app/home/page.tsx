@@ -5,14 +5,14 @@ import Hero from "../components/Hero";
 import WhatGetSection from "../components/WhatGetSection";
 import WhatsAppButton from "../components/WhatsAppButton";
 import WhySection from "../components/WhySection";
-export default function Home() {
+export default function page() {
     return (
         <div className="bg-transparent">
             
             <WhatsAppButton />
             <Hero  />
-            <WhySection />
             <WhatGetSection />
+            <WhySection />
             <CiaSection />
             <Footer />
 
