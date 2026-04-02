@@ -1,14 +1,21 @@
 
-import Home from "./home/page";
-import FairyDustCursor from "./components/fairydust/fairydust";
-import HowItWorks from "./HowItWorks/page";
-
+import CiaSection from "./components/CiaSection";
+import Footer from "./components/Footer";
+import Hero from "./components/Hero";
+import WhatGetSection from "./components/WhatGetSection";
+import WhatsAppButton from "./components/WhatsAppButton";
+import WhySection from "./components/WhySection";
 export default function page() {
-  return (
-    <div className="bg-background">
-      {/* <HowItWorks /> */}
-      <Home />
-      {/* <FairyDustCursor/> */}
-    </div>
-  );
+    return (
+        <div className="bg-transparent">
+            
+            <WhatsAppButton />
+            <Hero  />
+            <WhatGetSection />
+            <WhySection />
+            <CiaSection />
+            <Footer />
+
+        </div>
+    );  
 }
