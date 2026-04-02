@@ -5,13 +5,13 @@ import { Minus, Plus, User, CreditCard, Mail, ArrowLeft, HelpCircle, Phone } fro
 import Image from 'next/image';
 import WhatsAppButton from '../components/WhatsAppButton';
 import Link from 'next/link';
-import { SiGooglestreetview } from "react-icons/si";   
-import { AiOutlineFieldNumber } from "react-icons/ai";   
-import { IoIosAddCircle } from "react-icons/io";  
-import { FaMapMarkedAlt } from "react-icons/fa";  
-import { FaCity } from "react-icons/fa";    
-import { FaMapMarkerAlt } from "react-icons/fa";  
-import { GiTalk } from "react-icons/gi"; 
+import { SiGooglestreetview } from "react-icons/si";
+import { AiOutlineFieldNumber } from "react-icons/ai";
+import { IoIosAddCircle } from "react-icons/io";
+import { FaMapMarkedAlt } from "react-icons/fa";
+import { FaCity } from "react-icons/fa";
+import { FaMapMarkerAlt } from "react-icons/fa";
+import { GiTalk } from "react-icons/gi";
 
 export default function page() {
   const [step, setStep] = useState(1);
@@ -24,7 +24,14 @@ export default function page() {
   const [formData, setFormData] = useState({
     nome: '',
     cpf: '',
-    email: ''
+    email: '',
+    telefone: '',
+    rua: '',
+    numero: '',
+    bairro: '',
+    cidade: '',
+    cep: '',
+    
   });
 
   // Função para atualizar os campos dinamicamente
@@ -34,6 +41,32 @@ export default function page() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleNextStep = () => {
+    if (step === 1) {
+      // Apenas avança para o formulário de dados
+      setStep(2);
+    } else if (step === 2) {
+      // Aqui é onde a "mágica" acontece: validação e envio
+      finalizarPedido();
+    }
+  };
+
+  const finalizarPedido = () => {
+    // Validação básica antes de prosseguir
+    if (!formData.nome || !formData.cpf || !formData.email || !formData.rua || !formData.numero || !formData.bairro || !formData.cidade || !formData.cep) {
+      alert("Por favor, preencha todos os campos antes de prosseguir.");
+      return;
+    }
+
+    // Aqui você integraria com Stripe, Mercado Pago ou apenas um console.log por enquanto
+    console.log("Dados do Cliente:", formData);
+    console.log("Quantidade de Scoops:", scoops);
+    console.log("Total a Pagar:", total);
+
+    // Opcional: Avançar para um passo 3 de "Sucesso" ou abrir o checkout
+    setStep(3);
   };
 
   return (
@@ -99,10 +132,10 @@ export default function page() {
               </div>
 
               <button
-                onClick={() => setStep(step + 1)}
+                onClick={handleNextStep}
                 className="w-full bg-white text-purple-600 py-4 rounded-2xl font-bold text-lg hover:bg-purple-50 transition-colors shadow-lg"
               >
-                {step === 1 ? 'Continuar' : 'Ir para pagamento'}
+                {step === 1 ? 'Continuar' : 'Finalizar Pedido'}
               </button>
 
               <p className="text-center text-xs mt-4 opacity-80">

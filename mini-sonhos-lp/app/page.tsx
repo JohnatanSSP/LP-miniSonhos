@@ -8,7 +8,7 @@ export default function page() {
     <div className="bg-background">
       {/* <HowItWorks /> */}
       <Home />
-      <FairyDustCursor/>
+      {/* <FairyDustCursor/> */}
     </div>
   );
 }
