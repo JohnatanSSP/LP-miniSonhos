@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-br"
-      className={`${poppins.variable} h-full antialiased !scroll-smooth scrollbar-thin scrollbar-thumb-pink-600 scrollbar-track-pink-600 scrollbar-thumb-pink-700 scrollbar-track-pink-900`}
+      className={`${poppins.variable} h-full antialiased scrollbar-thin scrollbar-thumb-pink-600 scrollbar-track-pink-600 scrollbar-thumb-pink-700 scrollbar-track-pink-900`}
     >
       <body className="min-h-full flex flex-col ">{children}</body>
       {/* <FairyDustCursor/> */}

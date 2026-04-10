@@ -76,7 +76,7 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
                 <div className="inline-block h-8 animate-spin rounded-full border-4 border-s border-current border-e-transparent text-surface
                 motion-reduce:animate-[spin_1.5s_linear_infinite]"
                     role="status">
-                    <span className="!absolute !m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Carregando...</span>
+                    <span className="">Carregando...</span>
                 </div>
             </div>
         );
