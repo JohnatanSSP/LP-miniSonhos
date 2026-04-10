@@ -31,7 +31,7 @@ export default function page() {
     bairro: '',
     cidade: '',
     cep: '',
-    
+
   });
 
   // Função para atualizar os campos dinamicamente
@@ -84,9 +84,13 @@ export default function page() {
 
           <span className="font-bold text-purple-900">Emily MiniSonhos</span>
         </div>
-        <button className="flex items-center text-emerald-500 font-medium hover:opacity-70">
-          <HelpCircle className="w-4 h-4 mr-1" /> Ajuda
-        </button>
+        <Link href="/HowItWorks" className="flex items-center text-emerald-500 font-medium hover:opacity-70 transition ">
+          
+            <button className="flex items-center text-emerald-500 font-medium hover:opacity-70 cursor-pointer transition">
+              <HelpCircle className="w-4 h-4 mr-1" /> Ajuda
+            </button>
+          
+        </Link>
       </header>
 
       <main className="max-w-6xl mx-auto">
@@ -349,6 +353,21 @@ function StepUserData({ formData, onChange }: { formData: any, onChange: any }) 
           </div>
 
           <div>
+            <label className="block text-purple-800 text-sm font-medium mb-2">Estado *</label>
+            <div className="relative">
+              <FaCity className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-300 w-5 h-5" />
+              <input
+                type="text"
+                name="estado"
+                value={formData.estado}
+                onChange={onChange}
+                placeholder="Nome do estado"
+                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-200 transition"
+              />
+            </div>
+          </div>
+
+          <div>
             <label className="block text-purple-800 text-sm font-medium mb-2">Cep *</label>
             <div className="relative">
               <FaMapMarkerAlt className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-300 w-5 h-5" />
@@ -364,7 +383,7 @@ function StepUserData({ formData, onChange }: { formData: any, onChange: any }) 
           </div>
 
           <div>
-            <label className="block text-purple-800 text-sm font-medium mb-2">observacoes *</label>
+            <label className="block text-purple-800 text-sm font-medium mb-2">Observacoes *</label>
             <div className="relative">
               <GiTalk className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-300 w-5 h-5" />
               <textarea

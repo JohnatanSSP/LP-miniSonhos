@@ -6,6 +6,7 @@ import { FaWhatsapp } from "react-icons/fa";
 
 import WhatsAppButton from '../components/WhatsAppButton';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const WHATSAPP_LINK = "https://wa.me/qr/326K3JISIY4AF1";
 
@@ -44,10 +45,12 @@ export default function page() {
       <div className="p-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
 
-          <button className="gap-2 text-purple-600 hover:text-purple-800">
-            <ArrowLeft className="w-4 h-4" />
-            Voltar
-          </button>
+          <Link href="/" className="flex items-center text-emerald-500 font-medium hover:opacity-70 transition">
+            <button className="gap-2 text-purple-600 hover:text-purple-800">
+              <ArrowLeft className="w-4 h-4" />
+              Voltar
+            </button>
+          </Link>
 
           <div className="flex items-center gap-2">
             <Image src="/img/logo.png" alt="Logo" width={300} height={300} className="w-100 h-100 object-contain rounded-full priority " priority loading="eager" />
