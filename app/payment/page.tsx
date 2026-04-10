@@ -18,9 +18,6 @@ export default function Payment() {
 
     return (
         <main className='w-full h-screen flex items-center justify-center bg-pink-100'>
-            <h1>Payment</h1>
-            <span className='text-sm text-gray-500'>Preco: {amount}</span>
-
             <Elements
                 stripe={stripePromise}
                 options={{

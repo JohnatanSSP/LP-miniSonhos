@@ -1,0 +1,10 @@
+[lcl-host]
+realm-apid = 'localhost'
+
+[org]
+apid = 'johnatanssp'
+
+[service]
+apid = 'lp-minisonhos'
+category = 'javascript'
+cert-style = 'acme'
