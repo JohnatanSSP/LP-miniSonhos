@@ -18,9 +18,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const cpfLimpo = cpfCnpj.replace(/\D/g, "");
+
     // Verificar se cliente já existe pelo CPF/CNPJ
     const existing = await asaasRequest<{ data: AsaasCustomer[] }>(
-      `/customers?cpfCnpj=${cpfCnpj.replace(/\D/g, "")}`
+      `/customers?cpfCnpj=${cpfLimpo}`
     );
 
     if (existing.data.length > 0) {
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         name,
         email,
-        cpfCnpj: cpfCnpj.replace(/\D/g, ""),
+        cpfCnpj: cpfLimpo,
         phone,
         mobilePhone,
         postalCode,
@@ -42,14 +44,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(customer, { status: 201 });
   } catch (error) {
     if (error instanceof AsaasError) {
+      console.error("Asaas error ao criar cliente:", error.status, error.body);
       return NextResponse.json(
         { error: error.message, details: error.body },
         { status: error.status }
       );
     }
-    console.error("Erro ao criar cliente:", error);
+    const msg = error instanceof Error ? error.message : "Erro desconhecido";
+    console.error("Erro ao criar cliente:", msg);
     return NextResponse.json(
-      { error: "Erro interno ao criar cliente" },
+      { error: msg },
       { status: 500 }
     );
   }
@@ -58,9 +62,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const cpfCnpj = new URL(request.url).searchParams.get("cpfCnpj");
-    const query = cpfCnpj
-      ? `?cpfCnpj=${cpfCnpj.replace(/\D/g, "")}`
-      : "";
+    const query = cpfCnpj ? `?cpfCnpj=${cpfCnpj.replace(/\D/g, "")}` : "";
 
     const result = await asaasRequest<{
       data: AsaasCustomer[];
@@ -70,11 +72,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     if (error instanceof AsaasError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status }
-      );
+      return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+    const msg = error instanceof Error ? error.message : "Erro desconhecido";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

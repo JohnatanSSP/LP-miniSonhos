@@ -365,6 +365,49 @@ function StepScoops({
   );
 }
 
+// ─── Step 2: Campo de formulário (fora do componente pai para evitar remontagem) ──
+
+function FormField({
+  label,
+  name,
+  placeholder,
+  icon,
+  type = "text",
+  required = true,
+  value,
+  onChange,
+}: {
+  label: string;
+  name: keyof FormData;
+  placeholder: string;
+  icon: React.ReactNode;
+  type?: string;
+  required?: boolean;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <div>
+      <label className="block text-purple-800 text-sm font-medium mb-2">
+        {label} {required && <span className="text-pink-400">*</span>}
+      </label>
+      <div className="relative">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-300 w-5 h-5">
+          {icon}
+        </span>
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-200 transition"
+        />
+      </div>
+    </div>
+  );
+}
+
 // ─── Step 2: Dados pessoais ───────────────────────────────────────────────────
 
 function StepUserData({
@@ -374,43 +417,6 @@ function StepUserData({
   formData: FormData;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }) {
-  function Field({
-    label,
-    name,
-    placeholder,
-    icon,
-    type = "text",
-    required = true,
-  }: {
-    label: string;
-    name: keyof FormData;
-    placeholder: string;
-    icon: React.ReactNode;
-    type?: string;
-    required?: boolean;
-  }) {
-    return (
-      <div>
-        <label className="block text-purple-800 text-sm font-medium mb-2">
-          {label} {required && <span className="text-pink-400">*</span>}
-        </label>
-        <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-300 w-5 h-5">
-            {icon}
-          </span>
-          <input
-            type={type}
-            name={name}
-            value={(formData as unknown as Record<string, string>)[name]}
-            onChange={onChange}
-            placeholder={placeholder}
-            className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-200 transition"
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">
       <h1 className="text-4xl font-bold text-purple-900 mb-2">Seus dados</h1>
@@ -420,21 +426,21 @@ function StepUserData({
         <h3 className="text-purple-900 font-semibold border-b border-purple-100 pb-3">
           Dados pessoais
         </h3>
-        <Field label="Nome completo" name="nome" placeholder="Seu nome completo" icon={<User />} />
-        <Field label="CPF" name="cpf" placeholder="000.000.000-00" icon={<CreditCard />} />
-        <Field label="E-mail" name="email" placeholder="seu@email.com" icon={<Mail />} type="email" />
-        <Field label="Telefone / WhatsApp" name="telefone" placeholder="(00) 00000-0000" icon={<Phone />} type="tel" />
+        <FormField label="Nome completo" name="nome" placeholder="Seu nome completo" icon={<User />} value={formData.nome} onChange={onChange} />
+        <FormField label="CPF" name="cpf" placeholder="000.000.000-00" icon={<CreditCard />} value={formData.cpf} onChange={onChange} />
+        <FormField label="E-mail" name="email" placeholder="seu@email.com" icon={<Mail />} type="email" value={formData.email} onChange={onChange} />
+        <FormField label="Telefone / WhatsApp" name="telefone" placeholder="(00) 00000-0000" icon={<Phone />} type="tel" value={formData.telefone} onChange={onChange} />
 
         <h3 className="text-purple-900 font-semibold border-b border-purple-100 pb-3 pt-2">
           Endereço de entrega
         </h3>
-        <Field label="Rua" name="rua" placeholder="Nome da rua" icon={<SiGooglestreetview />} />
-        <Field label="Número" name="numero" placeholder="Nº da casa/apt" icon={<AiOutlineFieldNumber />} />
-        <Field label="Complemento" name="complemento" placeholder="Apto, bloco..." icon={<IoIosAddCircle />} required={false} />
-        <Field label="Bairro" name="bairro" placeholder="Nome do bairro" icon={<FaMapMarkedAlt />} />
-        <Field label="Cidade" name="cidade" placeholder="Nome da cidade" icon={<FaCity />} />
-        <Field label="Estado" name="estado" placeholder="SP, RJ, MG..." icon={<FaCity />} />
-        <Field label="CEP" name="cep" placeholder="00000-000" icon={<FaMapMarkerAlt />} />
+        <FormField label="Rua" name="rua" placeholder="Nome da rua" icon={<SiGooglestreetview />} value={formData.rua} onChange={onChange} />
+        <FormField label="Número" name="numero" placeholder="Nº da casa/apt" icon={<AiOutlineFieldNumber />} value={formData.numero} onChange={onChange} />
+        <FormField label="Complemento" name="complemento" placeholder="Apto, bloco..." icon={<IoIosAddCircle />} required={false} value={formData.complemento} onChange={onChange} />
+        <FormField label="Bairro" name="bairro" placeholder="Nome do bairro" icon={<FaMapMarkedAlt />} value={formData.bairro} onChange={onChange} />
+        <FormField label="Cidade" name="cidade" placeholder="Nome da cidade" icon={<FaCity />} value={formData.cidade} onChange={onChange} />
+        <FormField label="Estado" name="estado" placeholder="SP, RJ, MG..." icon={<FaCity />} value={formData.estado} onChange={onChange} />
+        <FormField label="CEP" name="cep" placeholder="00000-000" icon={<FaMapMarkerAlt />} value={formData.cep} onChange={onChange} />
 
         <div>
           <label className="block text-purple-800 text-sm font-medium mb-2">Observações</label>
