@@ -401,7 +401,7 @@ function StepUserData({
           <input
             type={type}
             name={name}
-            value={(formData as Record<string, string>)[name]}
+            value={(formData as unknown as Record<string, string>)[name]}
             onChange={onChange}
             placeholder={placeholder}
             className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-200 transition"
