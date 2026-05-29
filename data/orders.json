@@ -1,0 +1,23 @@
+[
+  {
+    "id": "order_1780026593190_x4o58",
+    "createdAt": "2026-05-29T03:49:53.190Z",
+    "paymentId": "pay_hu9n7t5kxy56iuzz",
+    "paymentStatus": "PENDING",
+    "billingType": "BOLETO",
+    "value": 225,
+    "scoops": 3,
+    "nome": "johnatan s s paixao",
+    "email": "johnatan.sousa@gmail.com",
+    "cpf": "41930280890",
+    "telefone": "11932872051",
+    "rua": "rua jose joaquim de araujo",
+    "numero": "6",
+    "complemento": "sdfg",
+    "bairro": "pq das cerejeiras",
+    "cidade": "sao paulo",
+    "estado": "SP",
+    "cep": "04966-141",
+    "observacoes": ""
+  }
+]

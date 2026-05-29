@@ -3,9 +3,19 @@
 import './BackgroundAnimated.css';
 
 export default function BackgroundAnimated() {
-    
     return (
-        <div className=" z-0 absolute flex h-auto top-0 left-0 overflow-hidden border-b-1 border-purple-400">
+        <div className="background z-0 absolute w-full h-full top-0 left-0 overflow-hidden">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
             <span></span>
             <span></span>
             <span></span>
@@ -17,5 +27,5 @@ export default function BackgroundAnimated() {
             <span></span>
             <span></span>
         </div>
-    )
+    );
 }
