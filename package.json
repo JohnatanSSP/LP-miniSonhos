@@ -15,7 +15,6 @@
     "@stripe/stripe-js": "^9.1.0",
     "anchor-pki": "^0.3.2",
     "clsx": "^2.1.1",
-    "dotenv": "^17.4.2",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.7.0",
     "motion": "^12.38.0",
