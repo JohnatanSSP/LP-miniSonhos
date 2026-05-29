@@ -5,11 +5,11 @@ import Link from "next/link";
 
 export default function Hero() {
     return (
-        <nav className="bg-transparent shadow-md relative w-full h-screen flex items-center justify-center">
-            <div className="max-w-7xl relative mx-auto z-30">
-                <div className="flex justify-around items-center">
-                    <div className="flex flex-col items-center justify-around gap-5 text-center">
-                        <div className="flex items-center justify-center">
+        <nav className="bg-transparent shadow-md relative w-screen h-screen flex items-center justify-center">
+            <div className="bg-transparent max-w-7xl w-screen relative mx-auto z-30">
+                <div className="bg-transparent flex w-screen justify-around items-center">
+                    <div className=" bg-transparent w-screen flex flex-col items-center justify-around gap-5 text-center">
+                        <div className="bg-transparent flex items-center w-screen justify-center">
                             <Image
                                 src="/img/logo.png"
                                 alt="Logo"
