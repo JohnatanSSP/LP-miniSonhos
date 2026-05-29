@@ -3,35 +3,58 @@
  * Docs: https://docs.asaas.com
  */
 
-const ASAAS_BASE_URL =
-  process.env.ASAAS_ENVIRONMENT === "production"
-    ? "https://api.asaas.com/v3"
-    : "https://sandbox.asaas.com/api/v3";
+// Se ASAAS_ENVIRONMENT for "production", usa prod. Qualquer outro valor usa sandbox.
+const IS_PRODUCTION = process.env.ASAAS_ENVIRONMENT === "production";
+
+const ASAAS_BASE_URL = IS_PRODUCTION
+  ? "https://api.asaas.com/v3"
+  : "https://sandbox.asaas.com/api/v3";
 
 export async function asaasRequest<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
   const apiKey = process.env.ASAAS_API_KEY;
-  if (!apiKey) throw new AsaasError("ASAAS_API_KEY não configurada", 500, null);
 
-  const response = await fetch(`${ASAAS_BASE_URL}${path}`, {
+  if (!apiKey) {
+    throw new AsaasError(
+      "ASAAS_API_KEY não está definida no .env.local",
+      500,
+      null
+    );
+  }
+
+  const url = `${ASAAS_BASE_URL}${path}`;
+
+  const response = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
       access_token: apiKey,
       ...options.headers,
     },
+    // Sem cache para garantir dados frescos em rotas de API
+    cache: "no-store",
   });
 
-  const data = await response.json();
+  // Lê como texto para não crashar em respostas vazias (ex: 500 null do Asaas)
+  const text = await response.text();
+  let data: unknown = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = { raw: text };
+  }
 
   if (!response.ok) {
-    throw new AsaasError(
-      data?.errors?.[0]?.description ?? "Erro na API do Asaas",
-      response.status,
-      data
-    );
+    const d = data as Record<string, unknown> | null;
+    const errors = d?.errors as { description?: string }[] | undefined;
+    const message =
+      errors?.[0]?.description ??
+      (d?.message as string) ??
+      `Erro ${response.status} na API do Asaas`;
+    console.error(`Asaas ${response.status} [${path}]:`, JSON.stringify(data));
+    throw new AsaasError(message, response.status, data);
   }
 
   return data as T;

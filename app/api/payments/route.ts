@@ -11,7 +11,7 @@ import {
   BillingType,
 } from "@/lib/asaas";
 
-// Retorna a data de vencimento de hoje + N dias no formato YYYY-MM-DD
+// Retorna a data de vencimento hoje + N dias no formato YYYY-MM-DD
 function dueDateFromNow(days = 3): string {
   const d = new Date();
   d.setDate(d.getDate() + days);
@@ -28,10 +28,8 @@ export async function POST(request: NextRequest) {
       value,
       description,
       externalReference,
-      // Cartão de crédito
       creditCard,
       creditCardHolderInfo,
-      // Parcelamento
       installmentCount,
       installmentValue,
     } = body;
@@ -51,18 +49,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Asaas exige value como número com até 2 casas decimais (ex: 75.00)
+    const valueFloat = parseFloat(Number(value).toFixed(2));
+
     const payload: Record<string, unknown> = {
       customer: customerId,
       billingType,
-      value,
+      value: valueFloat,
       dueDate: dueDateFromNow(3),
       description: description ?? "Mini Sonhos – Pedido surpresa",
-      externalReference,
+      externalReference: externalReference ?? undefined,
     };
 
     if (installmentCount) {
       payload.installmentCount = installmentCount;
-      payload.installmentValue = installmentValue ?? (value / installmentCount).toFixed(2);
+      payload.installmentValue =
+        installmentValue ?? parseFloat((valueFloat / installmentCount).toFixed(2));
     }
 
     if (billingType === "CREDIT_CARD" && creditCard) {
@@ -76,24 +78,27 @@ export async function POST(request: NextRequest) {
       payload.creditCardHolderInfo = creditCardHolderInfo;
     }
 
+    console.log("→ Criando cobrança Asaas:", JSON.stringify(payload));
+
     const payment = await asaasRequest<AsaasPayment>("/payments", {
       method: "POST",
       body: JSON.stringify(payload),
     });
 
+    console.log("✓ Cobrança criada:", payment.id, payment.status);
+
     return NextResponse.json(payment, { status: 201 });
   } catch (error) {
     if (error instanceof AsaasError) {
+      console.error("Asaas error ao criar cobrança:", error.status, JSON.stringify(error.body));
       return NextResponse.json(
         { error: error.message, details: error.body },
         { status: error.status }
       );
     }
-    console.error("Erro ao criar cobrança:", error);
-    return NextResponse.json(
-      { error: "Erro interno ao criar cobrança" },
-      { status: 500 }
-    );
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("Erro inesperado ao criar cobrança:", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
@@ -113,8 +118,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     if (error instanceof AsaasError) {
+      console.error("Asaas error ao listar cobranças:", error.status, JSON.stringify(error.body));
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+    const msg = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
