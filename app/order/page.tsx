@@ -176,6 +176,19 @@ export default function OrderPage() {
         }
       }
 
+      // 4. Salvar pedido com endereço para entrega
+      await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paymentId: paymentData.id,
+          billingType,
+          value: total,
+          scoops,
+          ...formData,
+        }),
+      });
+
       setPaymentResult(result);
       setStep(4);
     } catch (err) {

@@ -7,7 +7,7 @@ import WhatsAppButton from "./components/WhatsAppButton";
 import WhySection from "./components/WhySection";
 export default function page() {
     return (
-        <div className="bg-transparent">
+        <div className="bg-transparent flex flex-col w-screen h-screen ">
             
             <WhatsAppButton />
             <Hero  />

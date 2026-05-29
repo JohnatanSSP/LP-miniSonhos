@@ -5,7 +5,7 @@ import './BackgroundAnimated.css';
 export default function BackgroundAnimated() {
     
     return (
-        <div className="background z-0 w-screen absolute flex h-screen top-0 left-0 overflow-hidden border-b-1 border-purple-400">
+        <div className=" z-0 absolute flex h-auto top-0 left-0 overflow-hidden border-b-1 border-purple-400">
             <span></span>
             <span></span>
             <span></span>

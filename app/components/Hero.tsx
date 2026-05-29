@@ -1,39 +1,36 @@
-
 import Image from "next/image";
 import BackgroundAnimated from "./BackgroundAnimated/BackgroundAnimated";
 import Link from "next/link";
 
 export default function Hero() {
     return (
-        <nav className="bg-transparent shadow-md relative w-screen h-screen flex items-center justify-center">
-            <div className="bg-transparent max-w-7xl w-screen relative mx-auto z-30">
-                <div className="bg-transparent flex w-screen justify-around items-center">
-                    <div className=" bg-transparent w-screen flex flex-col items-center justify-around gap-5 text-center">
-                        <div className="bg-transparent flex items-center w-screen justify-center">
-                            <Image
-                                src="/img/logo.png"
-                                alt="Logo"
-                                width={300}
-                                height={300}
-                                style={{ width: "auto", height: "auto" }}
-                                className="object-contain rounded-full"
-                                priority
-                            />
-                        </div>
-                        <div className="flex flex-col items-center justify-center text-center gap-5"> 
-                            <p className="text-center text-lg">A Magia está na surpresa</p>
-                            <h1 className="text-center text-8xl font-bold">Scoops <br /><strong className="text-purple-700">Surpresa</strong></h1>
-                            <p className="text-center text-lg">Escolha seu scoop de micangas e descubra suas surpresas!</p>
-                        </div>
-                        <div className="flex items-center justify-center gap-4">
-                            <Link href="/order">
-                                <button className="rounded-full py-4 px-6 text-3xl transition duration-1000 bg-gradient-to-r from-pink-600 to-purple-700 border-pink-600 text-white hover:bg-gradient-to-l hover:from-purple-700 hover:to-pink-600 hover:bg-white cursor-pointer">Pedir Agora</button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <section className="relative w-full h-screen flex items-center justify-center overflow-hidden">
+            {/* Background fica atrás de tudo */}
             <BackgroundAnimated />
-        </nav>
+
+            {/* Conteúdo fica na frente */}
+            <div className="relative z-30 flex flex-col items-center justify-center text-center gap-5 px-4">
+                <Image
+                    src="/img/logo.png"
+                    alt="Logo"
+                    width={300}
+                    height={300}
+                    style={{ width: "auto", height: "auto" }}
+                    className="object-contain rounded-full"
+                    priority
+                />
+                <p className="text-lg">A Magia está na surpresa</p>
+                <h1 className="text-8xl font-bold">
+                    Scoops <br />
+                    <strong className="text-purple-700">Surpresa</strong>
+                </h1>
+                <p className="text-lg">Escolha seu scoop de micangas e descubra suas surpresas!</p>
+                <Link href="/order">
+                    <button className="rounded-full py-4 px-6 text-3xl transition duration-1000 bg-gradient-to-r from-pink-600 to-purple-700 text-white hover:bg-gradient-to-l hover:from-purple-700 hover:to-pink-600 cursor-pointer">
+                        Pedir Agora
+                    </button>
+                </Link>
+            </div>
+        </section>
     );
 }

@@ -91,3 +91,9 @@ body {
   width: 0;
   height: 0;
 }
+
+/* Elimina scroll lateral em toda a página */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
