@@ -1,46 +1,76 @@
 "use client";
 
 import { useState } from "react";
-import { Package, MapPin, User, Phone, Mail, CreditCard, Search, LogOut, Copy, Check } from "lucide-react";
-import type { Order } from "@/app/api/orders/route";
+import {
+  Package, MapPin, User, Phone, Mail, CreditCard,
+  Search, LogOut, Copy, Check, RefreshCw, Filter,
+} from "lucide-react";
 
-const STATUS_LABEL: Record<string, { label: string; color: string }> = {
-  PENDING:   { label: "Aguardando",  color: "bg-yellow-100 text-yellow-700" },
-  CONFIRMED: { label: "Confirmado",  color: "bg-green-100 text-green-700" },
-  RECEIVED:  { label: "Pago",        color: "bg-green-100 text-green-700" },
-  OVERDUE:   { label: "Vencido",     color: "bg-red-100 text-red-700" },
-  REFUNDED:  { label: "Estornado",   color: "bg-gray-100 text-gray-500" },
+interface Order {
+  id: string;
+  createdAt: string;
+  paymentId: string;
+  paymentStatus: string;
+  billingType: string;
+  value: number;
+  scoops: number;
+  nome: string;
+  email: string;
+  cpf: string;
+  telefone: string;
+  rua: string;
+  numero: string;
+  complemento?: string | null;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  cep: string;
+  observacoes?: string | null;
+}
+
+const STATUS_MAP: Record<string, { label: string; color: string }> = {
+  PENDING:              { label: "Aguardando",  color: "bg-yellow-100 text-yellow-700" },
+  CONFIRMED:            { label: "Confirmado",  color: "bg-blue-100 text-blue-700" },
+  RECEIVED:             { label: "Pago",        color: "bg-green-100 text-green-700" },
+  RECEIVED_IN_CASH:     { label: "Pago",        color: "bg-green-100 text-green-700" },
+  OVERDUE:              { label: "Vencido",     color: "bg-red-100 text-red-700" },
+  REFUNDED:             { label: "Estornado",   color: "bg-gray-100 text-gray-500" },
+  REFUND_REQUESTED:     { label: "Estorno req.", color: "bg-orange-100 text-orange-600" },
+  CHARGEBACK_REQUESTED: { label: "Chargeback",  color: "bg-red-100 text-red-700" },
 };
 
-const BILLING_LABEL: Record<string, string> = {
-  PIX: "PIX",
-  BOLETO: "Boleto",
-  CREDIT_CARD: "Cartão",
+const BILLING_MAP: Record<string, string> = {
+  PIX: "PIX", BOLETO: "Boleto", CREDIT_CARD: "Cartão",
 };
 
 export default function AdminPage() {
-  const [password, setPassword] = useState("");
+  const [password, setPassword]         = useState("");
   const [authenticated, setAuthenticated] = useState(false);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
-  const [copied, setCopied] = useState<string | null>(null);
+  const [orders, setOrders]             = useState<Order[]>([]);
+  const [total, setTotal]               = useState(0);
+  const [loading, setLoading]           = useState(false);
+  const [error, setError]               = useState("");
+  const [search, setSearch]             = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [copied, setCopied]             = useState<string | null>(null);
+  const [secret, setSecret]             = useState("");
 
-  const login = async () => {
+  const fetchOrders = async (s = search, st = statusFilter, pwd = secret) => {
     setLoading(true);
-    setError("");
     try {
-      const res = await fetch("/api/orders", {
-        headers: { "x-admin-secret": password },
+      const params = new URLSearchParams();
+      if (s) params.set("search", s);
+      if (st) params.set("status", st);
+
+      const res = await fetch(`/api/orders?${params}`, {
+        headers: { "x-admin-secret": pwd },
       });
-      if (!res.ok) {
-        setError("Senha incorreta.");
-        return;
-      }
+      if (!res.ok) { setError("Senha incorreta."); return; }
       const data = await res.json();
-      setOrders(data);
+      setOrders(data.orders ?? []);
+      setTotal(data.total ?? 0);
       setAuthenticated(true);
+      setSecret(pwd);
     } catch {
       setError("Erro ao carregar pedidos.");
     } finally {
@@ -48,22 +78,22 @@ export default function AdminPage() {
     }
   };
 
+  const handleLogin = () => fetchOrders("", "", password);
+
   const copyAddress = (order: Order) => {
-    const addr = `${order.nome}\n${order.rua}, ${order.numero}${order.complemento ? ` - ${order.complemento}` : ""}\n${order.bairro}, ${order.cidade} - ${order.estado}\nCEP: ${order.cep}\nTel: ${order.telefone}`;
-    navigator.clipboard.writeText(addr);
+    const lines = [
+      order.nome,
+      `${order.rua}, ${order.numero}${order.complemento ? ` - ${order.complemento}` : ""}`,
+      `${order.bairro}, ${order.cidade} - ${order.estado}`,
+      `CEP: ${order.cep}`,
+      `Tel: ${order.telefone}`,
+    ];
+    navigator.clipboard.writeText(lines.join("\n"));
     setCopied(order.id);
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const filtered = orders.filter((o) => {
-    const q = search.toLowerCase();
-    return (
-      o.nome.toLowerCase().includes(q) ||
-      o.email.toLowerCase().includes(q) ||
-      o.cidade.toLowerCase().includes(q) ||
-      o.paymentId.toLowerCase().includes(q)
-    );
-  });
+  // ── Login ──────────────────────────────────────────────────────────────────
 
   if (!authenticated) {
     return (
@@ -79,25 +109,28 @@ export default function AdminPage() {
             placeholder="Senha de acesso"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && login()}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
             className="w-full px-4 py-3 rounded-2xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-200 mb-3 text-center"
           />
           {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
           <button
-            onClick={login}
+            onClick={handleLogin}
             disabled={loading || !password}
             className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-2xl font-semibold hover:from-purple-600 hover:to-pink-600 transition disabled:opacity-50"
           >
             {loading ? "Carregando..." : "Entrar"}
           </button>
-          <p className="text-xs text-gray-300 mt-4">
-            Senha padrão: <code>minisonhos2025</code><br />
-            Configure ADMIN_SECRET no .env para mudar.
-          </p>
         </div>
       </div>
     );
   }
+
+  // ── Dashboard ──────────────────────────────────────────────────────────────
+
+  const totalValue = orders.reduce((sum, o) => sum + o.value, 0);
+  const paidCount = orders.filter((o) =>
+    ["RECEIVED", "CONFIRMED", "RECEIVED_IN_CASH"].includes(o.paymentStatus)
+  ).length;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -105,38 +138,72 @@ export default function AdminPage() {
       <div className="max-w-6xl mx-auto mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-purple-900">Pedidos</h1>
-          <p className="text-sm text-gray-400">{orders.length} pedido{orders.length !== 1 ? "s" : ""} no total</p>
+          <p className="text-sm text-gray-400">
+            {total} pedido{total !== 1 ? "s" : ""} · {paidCount} pago{paidCount !== 1 ? "s" : ""} ·{" "}
+            R$ {totalValue.toFixed(2)} nesta página
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => fetchOrders()}
+            className="flex items-center gap-1 text-sm text-purple-400 hover:text-purple-600 transition p-2 rounded-xl hover:bg-purple-50"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => { setAuthenticated(false); setOrders([]); setPassword(""); setSecret(""); }}
+            className="flex items-center gap-2 text-sm text-gray-400 hover:text-red-500 transition"
+          >
+            <LogOut className="w-4 h-4" /> Sair
+          </button>
+        </div>
+      </div>
+
+      {/* Filtros */}
+      <div className="max-w-6xl mx-auto mb-6 flex gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-48">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+          <input
+            type="text"
+            placeholder="Buscar por nome, e-mail, cidade..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && fetchOrders(search)}
+            className="w-full pl-11 pr-4 py-3 bg-white rounded-2xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-200"
+          />
+        </div>
+        <div className="relative">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+          <select
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); fetchOrders(search, e.target.value); }}
+            className="pl-9 pr-4 py-3 bg-white rounded-2xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-200 appearance-none"
+          >
+            <option value="">Todos os status</option>
+            {Object.entries(STATUS_MAP).map(([key, { label }]) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </select>
         </div>
         <button
-          onClick={() => { setAuthenticated(false); setOrders([]); setPassword(""); }}
-          className="flex items-center gap-2 text-sm text-gray-400 hover:text-red-500 transition"
+          onClick={() => fetchOrders(search)}
+          className="px-5 py-3 bg-purple-500 text-white rounded-2xl font-medium hover:bg-purple-600 transition"
         >
-          <LogOut className="w-4 h-4" /> Sair
+          Buscar
         </button>
       </div>
 
-      {/* Busca */}
-      <div className="max-w-6xl mx-auto mb-6 relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
-        <input
-          type="text"
-          placeholder="Buscar por nome, e-mail, cidade ou ID do pagamento..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-11 pr-4 py-3 bg-white rounded-2xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-200"
-        />
-      </div>
-
-      {/* Lista de pedidos */}
+      {/* Lista */}
       <div className="max-w-6xl mx-auto space-y-4">
-        {filtered.length === 0 && (
-          <div className="text-center text-gray-400 py-16">
-            {search ? "Nenhum pedido encontrado para essa busca." : "Nenhum pedido ainda."}
-          </div>
+        {loading && (
+          <div className="text-center text-gray-400 py-16">Carregando...</div>
+        )}
+        {!loading && orders.length === 0 && (
+          <div className="text-center text-gray-400 py-16">Nenhum pedido encontrado.</div>
         )}
 
-        {filtered.map((order) => {
-          const status = STATUS_LABEL[order.paymentStatus] ?? { label: order.paymentStatus, color: "bg-gray-100 text-gray-500" };
+        {orders.map((order) => {
+          const status = STATUS_MAP[order.paymentStatus] ?? { label: order.paymentStatus, color: "bg-gray-100 text-gray-500" };
           return (
             <div key={order.id} className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
               <div className="flex flex-wrap gap-3 items-start justify-between mb-4">
@@ -146,14 +213,15 @@ export default function AdminPage() {
                       {status.label}
                     </span>
                     <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
-                      {BILLING_LABEL[order.billingType] ?? order.billingType}
+                      {BILLING_MAP[order.billingType] ?? order.billingType}
                     </span>
                     <span className="text-xs text-purple-400 bg-purple-50 px-2 py-1 rounded-full">
                       {order.scoops} scoop{order.scoops > 1 ? "s" : ""}
                     </span>
                   </div>
                   <p className="text-xs text-gray-300">
-                    {new Date(order.createdAt).toLocaleString("pt-BR")} · <code className="text-xs">{order.paymentId}</code>
+                    {new Date(order.createdAt).toLocaleString("pt-BR")} ·{" "}
+                    <code className="text-xs">{order.paymentId}</code>
                   </p>
                 </div>
                 <span className="text-2xl font-bold text-purple-900">
@@ -161,8 +229,8 @@ export default function AdminPage() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Dados pessoais */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Cliente */}
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Cliente</p>
                   <div className="flex items-center gap-2 text-sm text-gray-700">
@@ -171,17 +239,19 @@ export default function AdminPage() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-700">
                     <Mail className="w-4 h-4 text-purple-300 shrink-0" />
-                    <a href={`mailto:${order.email}`} className="hover:text-purple-600 transition">
-                      {order.email}
-                    </a>
+                    <a href={`mailto:${order.email}`} className="hover:text-purple-600 transition">{order.email}</a>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-700">
                     <Phone className="w-4 h-4 text-purple-300 shrink-0" />
-                    <a href={`https://wa.me/55${order.telefone.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="hover:text-green-600 transition">
+                    <a
+                      href={`https://wa.me/55${order.telefone.replace(/\D/g, "")}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="hover:text-green-600 transition"
+                    >
                       {order.telefone}
                     </a>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
                     <CreditCard className="w-4 h-4 text-purple-300 shrink-0" />
                     <span>{order.cpf}</span>
                   </div>
@@ -209,7 +279,7 @@ export default function AdminPage() {
                     </div>
                   </div>
                   {order.observacoes && (
-                    <div className="mt-2 text-sm text-gray-500 bg-yellow-50 rounded-xl px-3 py-2 border border-yellow-100">
+                    <div className="text-sm text-gray-500 bg-yellow-50 rounded-xl px-3 py-2 border border-yellow-100">
                       💬 {order.observacoes}
                     </div>
                   )}

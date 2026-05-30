@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { asaasRequest, AsaasError, AsaasPayment } from "@/lib/asaas";
+import { asaasRequest, AsaasError, AsaasPayment } from "@/app/lib/asaas";
 
 type Params = { params: Promise<{ id: string }> };
 

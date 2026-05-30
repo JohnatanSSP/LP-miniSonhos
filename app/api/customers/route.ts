@@ -4,9 +4,37 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { asaasRequest, AsaasError, AsaasCustomer } from "@/lib/asaas";
+import { asaasRequest, AsaasError, AsaasCustomer } from "@/app/lib/asaas";
+
+// Rate limit simples em memória (reinicia com o servidor)
+// Para produção, use Upstash Redis ou similar
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const window = 60_000; // 1 minuto
+  const maxRequests = 10;
+
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + window });
+    return true;
+  }
+  if (entry.count >= maxRequests) return false;
+  entry.count++;
+  return true;
+}
 
 export async function POST(request: NextRequest) {
+  // Rate limit por IP
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json(
+      { error: "Muitas requisições. Tente novamente em 1 minuto." },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
     const { name, email, cpfCnpj, phone, mobilePhone, postalCode } = body;
@@ -20,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     const cpfLimpo = cpfCnpj.replace(/\D/g, "");
 
-    // Verificar se cliente já existe pelo CPF/CNPJ
+    // Verificar se cliente já existe
     const existing = await asaasRequest<{ data: AsaasCustomer[] }>(
       `/customers?cpfCnpj=${cpfLimpo}`
     );
@@ -52,10 +80,7 @@ export async function POST(request: NextRequest) {
     }
     const msg = error instanceof Error ? error.message : "Erro desconhecido";
     console.error("Erro ao criar cliente:", msg);
-    return NextResponse.json(
-      { error: msg },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
@@ -63,12 +88,9 @@ export async function GET(request: NextRequest) {
   try {
     const cpfCnpj = new URL(request.url).searchParams.get("cpfCnpj");
     const query = cpfCnpj ? `?cpfCnpj=${cpfCnpj.replace(/\D/g, "")}` : "";
-
-    const result = await asaasRequest<{
-      data: AsaasCustomer[];
-      totalCount: number;
-    }>(`/customers${query}`);
-
+    const result = await asaasRequest<{ data: AsaasCustomer[]; totalCount: number }>(
+      `/customers${query}`
+    );
     return NextResponse.json(result);
   } catch (error) {
     if (error instanceof AsaasError) {

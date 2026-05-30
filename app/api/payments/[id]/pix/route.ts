@@ -3,7 +3,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { asaasRequest, AsaasError, AsaasPixQrCode } from "@/lib/asaas";
+import { asaasRequest, AsaasError, AsaasPixQrCode } from "@/app/lib/asaas";
 
 type Params = { params: Promise<{ id: string }> };
 

@@ -9,7 +9,7 @@ import {
   AsaasError,
   AsaasPayment,
   BillingType,
-} from "@/lib/asaas";
+} from "@/app/lib/asaas";
 
 // Retorna a data de vencimento hoje + N dias no formato YYYY-MM-DD
 function dueDateFromNow(days = 3): string {
