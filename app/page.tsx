@@ -1,4 +1,5 @@
 import CiaSection from "./components/CiaSection";
+import { FairyDustCursor } from "./components/fairydust/fairydust";
 import Footer from "./components/Footer";
 import Hero from "./components/Hero";
 import WhatGetSection from "./components/WhatGetSection";
@@ -14,6 +15,7 @@ export default function page() {
             <WhySection />
             <CiaSection />
             <Footer />
+            <FairyDustCursor />
         </div>
     );
 }

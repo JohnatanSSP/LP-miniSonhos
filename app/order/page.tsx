@@ -208,25 +208,29 @@ export default function OrderPage() {
   const stepLabels = ["Seu pedido", "Seus dados", "Pagamento", "Confirmação"];
 
   return (
-    <div className="min-h-screen bg-[#FDF8FF] font-sans text-gray-800 p-4 md:p-8">
+    <div className="min-h-screen bg-[#FDF8FF] font-sans text-gray-800">
       {/* Header */}
-      <header className="max-w-6xl mx-auto flex justify-between items-center mb-8">
-        <Link
-          href="/"
-          className="flex items-center text-purple-600 font-medium hover:opacity-70 transition"
-        >
-          <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
-        </Link>
-        <div className="flex items-center gap-2">
-          <Image src="/img/logo.png" alt="Logo" width={100} height={100} loading="eager" />
-          <span className="font-bold text-purple-900">Emily MiniSonhos</span>
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-purple-100 px-4 py-3 mb-6">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <Link
+            href="/"
+            className="flex items-center gap-1 text-purple-600 font-medium hover:opacity-70 transition text-sm"
+          >
+            <ArrowLeft className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Voltar</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Image src="/img/logo.png" alt="Logo" width={100} height={100} style={{ width: "auto", height: "auto" }} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-contain" loading="eager" />
+            <span className="font-bold text-purple-900 text-sm sm:text-base">Emily MiniSonhos</span>
+          </div>
+          <Link
+            href="/HowItWorks"
+            className="flex items-center gap-1 text-emerald-500 font-medium hover:opacity-70 transition text-sm"
+          >
+            <HelpCircle className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Ajuda</span>
+          </Link>
         </div>
-        <Link
-          href="/HowItWorks"
-          className="flex items-center text-emerald-500 font-medium hover:opacity-70 transition"
-        >
-          <HelpCircle className="w-4 h-4 mr-1" /> Ajuda
-        </Link>
       </header>
 
       {/* Stepper */}
@@ -241,7 +245,7 @@ export default function OrderPage() {
               {step > s ? "✓" : s}
             </div>
             {i < 3 && (
-              <div className="h-1 w-10 md:w-16 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-1 w-6 sm:w-10 md:w-16 bg-gray-200 rounded-full overflow-hidden">
                 <div
                   className={`h-full bg-purple-400 transition-all duration-500 ${
                     step > s ? "w-full" : "w-0"
@@ -256,7 +260,7 @@ export default function OrderPage() {
         {stepLabels[step - 1]}
       </p>
 
-      <main className="max-w-6xl mx-auto">
+      <main className="max-w-6xl mx-auto px-4 md:px-8">
         {step < 4 ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Conteúdo do step */}
@@ -297,15 +301,15 @@ export default function OrderPage() {
                   </span>
                   <span className="font-medium">R$ {total}</span>
                 </div>
-                <div className="flex justify-between items-end mb-8">
-                  <span className="text-lg">Total</span>
-                  <span className="text-4xl font-bold">R$ {total}</span>
+                <div className="flex justify-between items-end mb-6 sm:mb-8">
+                  <span className="text-base sm:text-lg">Total</span>
+                  <span className="text-2xl sm:text-4xl font-bold">R$ {total}</span>
                 </div>
 
                 {step < 3 && (
                   <button
                     onClick={handleNextStep}
-                    className="w-full bg-white text-purple-600 py-4 rounded-2xl font-bold text-lg hover:bg-purple-50 transition-colors shadow-lg"
+                    className="w-full bg-white text-purple-600 py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg hover:bg-purple-50 transition-colors shadow-lg"
                   >
                     {step === 1 ? "Continuar →" : "Ir para Pagamento →"}
                   </button>
@@ -358,7 +362,7 @@ function StepScoops({
               <Minus size={24} />
             </button>
             <div className="text-center">
-              <span className="text-7xl font-bold text-purple-400">{scoops}</span>
+              <span className="text-5xl sm:text-7xl font-bold text-purple-400">{scoops}</span>
               <p className="text-purple-300 font-medium">scoop{scoops > 1 ? "s" : ""}</p>
             </div>
             <button
@@ -555,7 +559,7 @@ function StepPayment({
               Gerando cobrança...
             </>
           ) : (
-            `Pagar R$ ${total},00 →`
+            <>Pagar <span className="font-bold">R$ {total},00</span> →</>
           )}
         </button>
 

@@ -97,3 +97,25 @@ html, body {
   overflow-x: hidden;
   max-width: 100%;
 }
+
+/* Garante que imagens nunca vazem */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Botões nunca cortam texto */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Inputs mobile - evita zoom automático no iOS */
+input, textarea, select {
+  font-size: 16px;
+}
+
+@media (min-width: 640px) {
+  input, textarea, select {
+    font-size: inherit;
+  }
+}
