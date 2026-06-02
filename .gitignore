@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 data/
+
+# anchor-pki temp certs
+tmp/
+anchor.toml

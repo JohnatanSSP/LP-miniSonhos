@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import type { NextConfig } from "next";
 
 function loadEnvFile(): Record<string, string> {
   const vars: Record<string, string> = {};
@@ -18,18 +19,14 @@ function loadEnvFile(): Record<string, string> {
 }
 
 const envVars = loadEnvFile();
+
+// Injeta no process.env para Route Handlers
 for (const [k, v] of Object.entries(envVars)) {
   if (!process.env[k]) process.env[k] = v;
 }
 
-import type { NextConfig } from "next";
-
 const nextConfig: NextConfig = {
-  env: {
-    ASAAS_API_KEY: envVars.ASAAS_API_KEY ?? process.env.ASAAS_API_KEY ?? "",
-    ASAAS_ENVIRONMENT: envVars.ASAAS_ENVIRONMENT ?? process.env.ASAAS_ENVIRONMENT ?? "sandbox",
-    ADMIN_SECRET: envVars.ADMIN_SECRET ?? process.env.ADMIN_SECRET ?? "",
-  },
+
 };
 
 export default nextConfig;

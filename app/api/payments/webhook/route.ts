@@ -2,7 +2,9 @@
  * POST /api/payments/webhook  → recebe eventos do Asaas e atualiza banco
  *
  * Configure no painel Asaas:
- *   Configurações → Integrações → Webhooks → URL: https://seudominio.com/api/payments/webhook
+ *   Configurações → Integrações → Webhooks
+ *   URL: https://seudominio.com/api/payments/webhook
+ *   Auth Token: mesmo valor de ASAAS_WEBHOOK_TOKEN no .env
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -31,7 +33,6 @@ interface WebhookPayload {
   };
 }
 
-// Mapeia status do Asaas para o enum do banco
 const STATUS_MAP: Record<string, PaymentStatus> = {
   PENDING:              "PENDING",
   CONFIRMED:            "CONFIRMED",
@@ -44,22 +45,30 @@ const STATUS_MAP: Record<string, PaymentStatus> = {
 };
 
 export async function POST(request: NextRequest) {
+  // Validar token do Asaas (configure no painel: Webhooks → Auth Token)
+  const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN;
+  if (webhookToken) {
+    const incomingToken =
+      request.headers.get("asaas-access-token") ??
+      request.headers.get("authorization")?.replace("Bearer ", "");
+    if (incomingToken !== webhookToken) {
+      console.warn("Webhook rejeitado: token inválido");
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+  }
+
   try {
     const body = (await request.json()) as WebhookPayload;
     const { event, payment } = body;
 
-    console.log(`📨 Asaas webhook: ${event}`, { id: payment?.id, status: payment?.status });
+    console.log(`📨 Webhook: ${event}`, { id: payment?.id, status: payment?.status });
 
-    // Atualiza status no banco baseado no evento
     const newStatus = STATUS_MAP[payment?.status] ?? null;
 
     if (newStatus && payment?.id) {
       await prisma.order.updateMany({
         where: { paymentId: payment.id },
         data: { paymentStatus: newStatus },
-      }).catch((err) => {
-        // updateMany não joga erro se não encontrar — só loga
-        console.warn("Pedido não encontrado no banco para paymentId:", payment.id, err);
       });
     }
 
@@ -67,7 +76,7 @@ export async function POST(request: NextRequest) {
       case "PAYMENT_RECEIVED":
       case "PAYMENT_CONFIRMED":
         console.log(`✅ Pago: ${payment.id} — R$ ${payment.value}`);
-        // TODO: Enviar e-mail de confirmação para o cliente
+        // TODO: enviar e-mail de confirmação
         break;
       case "PAYMENT_OVERDUE":
         console.log(`⚠️  Vencida: ${payment.id}`);
@@ -77,7 +86,6 @@ export async function POST(request: NextRequest) {
         break;
     }
 
-    // Asaas espera HTTP 200 para marcar como entregue
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
     console.error("Erro no webhook:", error);
