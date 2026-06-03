@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface FairyDustCursorProps {
   colors?: string[];
@@ -9,10 +9,7 @@ interface FairyDustCursorProps {
   particleCount?: number;
   gravity?: number;
   fadeSpeed?: number;
-  initialVelocity?: {
-    min: number;
-    max: number;
-  };
+  initialVelocity?: { min: number; max: number };
 }
 
 interface Particle {
@@ -20,10 +17,7 @@ interface Particle {
   y: number;
   character: string;
   color: string;
-  velocity: {
-    x: number;
-    y: number;
-  };
+  velocity: { x: number; y: number };
   lifeSpan: number;
   initialLifeSpan: number;
   scale: number;
@@ -32,40 +26,34 @@ interface Particle {
 export const FairyDustCursor: React.FC<FairyDustCursorProps> = ({
   colors = ['#D61C59', '#E7D84B', '#1B8798'],
   element,
-  characterSet = [ '💜','🩷'],
+  characterSet = ['💜', '🩷'],
   particleSize = 21,
   particleCount = 1,
   gravity = 0.1,
-  fadeSpeed = 1,
+  fadeSpeed = 0.98,
   initialVelocity = { min: 0.5, max: 2 },
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const cursorRef = useRef({ x: 0, y: 0 });
   const lastPosRef = useRef({ x: 0, y: 0 });
-  const [canvasSize, setCanvasSize] = useState({
-    width: 0,
-    height: 0,
-  });
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
 
-  useLayoutEffect(() => {
-    const updateCanvasSize = () => {
-      const newWidth = element ? element.clientWidth : window.innerWidth;
-      const newHeight = element ? element.clientHeight : window.innerHeight;
-
-      console.log('vavva updateCanvasSize', newWidth, newHeight);
-      setCanvasSize({ width: newWidth, height: newHeight });
+  // Guard SSR — só roda no browser
+  useEffect(() => {
+    const update = () => {
+      setCanvasSize({
+        width: element ? element.clientWidth : window.innerWidth,
+        height: element ? element.clientHeight : window.innerHeight,
+      });
     };
-
-    updateCanvasSize();
-    window.addEventListener('resize', updateCanvasSize);
-
-    return () => {
-      window.removeEventListener('resize', updateCanvasSize);
-    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
   }, [element]);
 
   useEffect(() => {
+    if (canvasSize.width === 0) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -76,68 +64,41 @@ export const FairyDustCursor: React.FC<FairyDustCursorProps> = ({
     canvas.width = canvasSize.width;
     canvas.height = canvasSize.height;
 
-    // Animation frame setup
     let animationFrameId: number;
 
-    const createParticle = (x: number, y: number): Particle => {
-      const randomChar =
-        characterSet[Math.floor(Math.random() * characterSet.length)];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-      const velocityX =
-        (Math.random() < 0.5 ? -1 : 1) *
-        (Math.random() * (initialVelocity.max - initialVelocity.min) +
-          initialVelocity.min);
-      const velocityY = -(Math.random() * initialVelocity.max);
+    const createParticle = (x: number, y: number): Particle => ({
+      x,
+      y,
+      character: characterSet[Math.floor(Math.random() * characterSet.length)],
+      color: colors[Math.floor(Math.random() * colors.length)],
+      velocity: {
+        x: (Math.random() < 0.5 ? -1 : 1) *
+          (Math.random() * (initialVelocity.max - initialVelocity.min) + initialVelocity.min),
+        y: -(Math.random() * initialVelocity.max),
+      },
+      lifeSpan: 60,
+      initialLifeSpan: 60,
+      scale: 1,
+    });
 
-      return {
-        x,
-        y,
-        character: randomChar,
-        color: randomColor,
-        velocity: { x: velocityX, y: velocityY },
-        lifeSpan: 60,
-        initialLifeSpan: 60,
-        scale: 1,
-      };
-    };
-
-    const updateParticles = () => {
-      if (!context) return;
+    const animate = () => {
       context.clearRect(0, 0, canvasSize.width, canvasSize.height);
 
-      // Update and draw particles
-      particlesRef.current.forEach((particle, index) => {
-        // Update position
-        particle.x += particle.velocity.x;
-        particle.y += particle.velocity.y;
+      particlesRef.current.forEach((p) => {
+        p.x += p.velocity.x;
+        p.y += p.velocity.y;
+        p.velocity.y += gravity;
+        p.lifeSpan *= fadeSpeed;
+        p.scale = Math.max(p.lifeSpan / p.initialLifeSpan, 0);
 
-        // Apply gravity
-        particle.velocity.y += gravity;
-
-        // Update lifespan and scale
-        particle.lifeSpan *= fadeSpeed;
-        particle.scale = Math.max(
-          particle.lifeSpan / particle.initialLifeSpan,
-          0
-        );
-
-        // Draw particle
         context.save();
-        context.font = `${particleSize * particle.scale}px serif`;
-        context.fillStyle = particle.color;
-        context.globalAlpha = particle.scale;
-        context.fillText(particle.character, particle.x, particle.y);
+        context.font = `${particleSize * p.scale}px serif`;
+        context.globalAlpha = p.scale;
+        context.fillText(p.character, p.x, p.y);
         context.restore();
       });
 
-      // Remove dead particles
-      particlesRef.current = particlesRef.current.filter(
-        (particle) => particle.lifeSpan > 0.1
-      );
-    };
-
-    const animate = () => {
-      updateParticles();
+      particlesRef.current = particlesRef.current.filter((p) => p.lifeSpan > 0.1);
       animationFrameId = requestAnimationFrame(animate);
     };
 
@@ -148,18 +109,11 @@ export const FairyDustCursor: React.FC<FairyDustCursorProps> = ({
 
       cursorRef.current = { x, y };
 
-      const distance = Math.hypot(
-        cursorRef.current.x - lastPosRef.current.x,
-        cursorRef.current.y - lastPosRef.current.y
-      );
-
-      if (distance > 2) {
+      if (Math.hypot(x - lastPosRef.current.x, y - lastPosRef.current.y) > 2) {
         for (let i = 0; i < particleCount; i++) {
-          particlesRef.current.push(
-            createParticle(cursorRef.current.x, cursorRef.current.y)
-          );
+          particlesRef.current.push(createParticle(x, y));
         }
-        lastPosRef.current = { ...cursorRef.current };
+        lastPosRef.current = { x, y };
       }
     };
 
@@ -169,16 +123,13 @@ export const FairyDustCursor: React.FC<FairyDustCursorProps> = ({
       const rect = element ? targetElement.getBoundingClientRect() : undefined;
       const x = element ? touch.clientX - rect!.left : touch.clientX;
       const y = element ? touch.clientY - rect!.top : touch.clientY;
-
       for (let i = 0; i < particleCount; i++) {
         particlesRef.current.push(createParticle(x, y));
       }
     };
 
     targetElement.addEventListener('mousemove', handleMouseMove);
-    targetElement.addEventListener('touchmove', handleTouchMove, {
-      passive: false,
-    });
+    targetElement.addEventListener('touchmove', handleTouchMove, { passive: false });
     animate();
 
     return () => {
@@ -186,17 +137,9 @@ export const FairyDustCursor: React.FC<FairyDustCursorProps> = ({
       targetElement.removeEventListener('touchmove', handleTouchMove);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [
-    colors,
-    element,
-    characterSet,
-    particleSize,
-    particleCount,
-    gravity,
-    fadeSpeed,
-    initialVelocity,
-    canvasSize,
-  ]);
+  }, [colors, element, characterSet, particleSize, particleCount, gravity, fadeSpeed, initialVelocity, canvasSize]);
+
+  if (canvasSize.width === 0) return null;
 
   return (
     <canvas

@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
@@ -9,8 +8,6 @@ const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
 });
-
-
 
 export const metadata: Metadata = {
   title: "Mini Sonhos - Surpresas Personalizadas",
@@ -25,10 +22,12 @@ export default function RootLayout({
   return (
     <html
       lang="pt-br"
-      className={`${poppins.variable} h-full antialiased scrollbar-thin scrollbar-thumb-pink-600 scrollbar-track-pink-600 scrollbar-thumb-pink-700 scrollbar-track-pink-900`}
+      className={`${poppins.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col ">{children}</body>
-      {/* <FairyDustCursor/> */}
+      <body className="min-h-full flex flex-col">
+        {children}
+        <FairyDustCursor />
+      </body>
     </html>
   );
 }
