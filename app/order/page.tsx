@@ -55,7 +55,7 @@ interface PaymentResult {
   value: number;
 }
 
-const PRICE_PER_SCOOP = 75;
+const PRICE_PER_SCOOP = 80;
 
 // ─── Página principal ─────────────────────────────────────────────────────────
 
