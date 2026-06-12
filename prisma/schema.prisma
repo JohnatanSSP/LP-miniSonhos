@@ -1,23 +1,31 @@
+// This is your Prisma schema file, learn more about it in the docs: https://pris.ly/d/prisma-schema
 generator client {
   provider = "prisma-client-js"
 }
 
+// This is your Prisma schema file, learn more about it in the docs: https://pris.ly/d/prisma-schema
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+// This is your Prisma schema file, learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 model Order {
   id            String        @id @default(cuid())
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
-
+ 
+//  paymentId     String        @unique
   paymentId     String        @unique
   paymentStatus PaymentStatus @default(PENDING)
   billingType   String
   value         Float
   scoops        Int
 
+//  nome          String
+//  email         String
+//  cpf           String
+//  telefone      String  
   nome          String
   email         String
   cpf           String
@@ -37,7 +45,7 @@ model Order {
   @@index([paymentStatus])
   @@index([createdAt])
 }
-
+// Define your data models here. Each model will correspond to a table in your database
 enum PaymentStatus {
   PENDING
   CONFIRMED
